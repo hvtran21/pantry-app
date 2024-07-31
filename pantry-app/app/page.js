@@ -1,7 +1,7 @@
 "use client"
 import {Box, Typography, Button, Modal, TextField} from '@mui/material'
 import Stack from '@mui/material/Stack';
-import { collection, getDocs, query, setDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, setDoc, doc, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '@/firebase';
 
@@ -27,7 +27,7 @@ export default function Home() {
   const [itemName, setItemName] = useState('')
 
   const update_database = async () => {
-    const snapshot = query(collection(db, 'pantry'))
+    const snapshot = query(collection(db, 'database'))
     const docs = await getDocs(snapshot)
     const database_list = []
     docs.forEach((doc)=> {
@@ -55,19 +55,24 @@ export default function Home() {
     }
   }
 
-  const addItem = async(item) => {
-    const docRef = doc(collection(db, 'database'), item)
-    const docSnap = await getDocs(docRef)
+  const addItem = async (item) => {
+    try {
+        const docRef = doc(db, 'database', item);
+        const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      const {quantity} = docSnap.data()
-      await setDoc(docRef, {quantity: quantity + 1})      
-    } else {
-      await setDoc(docref, {quantity: 1})
+        if (docSnap.exists()) {
+            const { quantity } = docSnap.data();
+            await setDoc(docRef, { quantity: quantity + 1 }, { merge: true });
+        } else {
+            await setDoc(docRef, { quantity: 1 });
+        }
+
+        // Update the database
+        await update_database();
+    } catch (error) {
+        console.error('Error adding item: ', error);
     }
-
-    await update_database()
-  }
+};
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
