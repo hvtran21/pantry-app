@@ -1,7 +1,7 @@
 "use client"
 import {Box, Typography, Button, Modal, TextField} from '@mui/material'
 import Stack from '@mui/material/Stack';
-import { collection, getDocs, getDoc, setDoc, doc, query } from 'firebase/firestore';
+import { collection, getDocs, getDoc, setDoc, doc, query, deleteDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '@/firebase';
 
@@ -27,22 +27,25 @@ export default function Home() {
   const [itemName, setItemName] = useState('')
 
   const update_database = async () => {
-    const snapshot = query(collection(db, 'database'))
-    const docs = await getDocs(snapshot)
-    const database_list = []
-    docs.forEach((doc)=> {
-      database_list.push(doc.id)
-    })
-    setDatabase(database_list)
-  }
+    try {
+      const snapshot = await getDocs(query(collection(db, 'database')));
+      const database_list = snapshot.docs.map(doc => ({
+        id: doc.id,
+        quantity: doc.data().quantity || 0 // Default to 0 if quantity is not set
+      }));
+      setDatabase(database_list);
+    } catch (error) {
+      console.error("Error fetching documents: ", error);
+    }
+  };
 
   useEffect(() => {
     update_database()
   }, [])
 
-  const removeItem = async(item) => {
-    const docRef = doc(collection(db, 'database'), item)
-    const docSnap = await getDocs(docRef)
+  const removeItem = async(itemId) => {
+    const docRef = doc(db, 'database', itemId);
+    const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
       const {quantity} = docSnap.data()
@@ -52,12 +55,13 @@ export default function Home() {
       } else { 
         await setDoc(docRef, {quantity: quantity - 1})
       }
+      await update_database();
     }
   }
 
-  const addItem = async (item) => {
+  const addItem = async (itemId) => {
     try {
-        const docRef = doc(db, 'database', item);
+        const docRef = doc(db, 'database', itemId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -66,8 +70,6 @@ export default function Home() {
         } else {
             await setDoc(docRef, { quantity: 1 });
         }
-
-        // Update the database
         await update_database();
     } catch (error) {
         console.error('Error adding item: ', error);
@@ -104,7 +106,7 @@ export default function Home() {
       }}
     >
       {/* Content of the Modal */}
-      <Typography variant="h6">Add Item</Typography>
+      <Typography variant="h6">Enter Item Name</Typography>
       <Stack width="100%" direction="row" spacing={2}>
         <TextField
           variant="outlined"
@@ -134,7 +136,7 @@ export default function Home() {
     onClick={() => {
       handleOpen()
     }}
-  >Add</Button>
+  >Add New Item</Button>
 
     {/* this is a wrapper to give the whole box a border */}
     <Box border={'1px solid #333'}> 
@@ -159,26 +161,54 @@ export default function Home() {
   <Stack width="800px" height="300px" spacing={2} overflow={'auto'}>
     {
     
-      database.map((i) => (
+      database.map((item) => (
         // configuration for the individual box sizes
         <Box
-          key={i}
+          key={item.id}
           width="100%"
           height="400%"
           display={'flex'}
           justifyContent={'center'}
           alignItems={'center'}
           bgcolor={'#f0f0f0'}
+          
         >
+          
           <Typography
             variant={'h3'}
             color={'#333'}
             textAlign={'center'}>
-            {
-              i.charAt(0).toUpperCase() + i.slice(1)
-            }
+
+            {item.id.charAt(0).toUpperCase() + item.id.slice(1)}
           </Typography>
-        </Box>
+          
+          <Typography
+            variant={'h3'}
+            color={'#333'}
+            textAlign={'center'}>
+            {item.quantity}
+          </Typography>
+
+          <Stack direction="row" spacing={1}>
+            
+          <Button 
+            variant="outlined"
+            size='small'
+            onClick={() => {
+              addItem(itemName)
+            }}
+           >add</Button>
+
+          <Button 
+            variant="outlined"
+            size='small'
+            onClick={() => {
+              removeItem(itemName)
+            }}
+           >del</Button>
+          </Stack>
+
+          </Box>
 
     ))}
   </Stack>
