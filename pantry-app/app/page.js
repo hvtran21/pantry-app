@@ -195,7 +195,7 @@ export default function Home() {
             variant="outlined"
             size='small'
             onClick={() => {
-              addItem(itemName)
+              addItem(item.id)
             }}
            >add</Button>
 
@@ -203,7 +203,7 @@ export default function Home() {
             variant="outlined"
             size='small'
             onClick={() => {
-              removeItem(itemName)
+              removeItem(item.id)
             }}
            >del</Button>
           </Stack>

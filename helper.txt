@@ -1,0 +1,32 @@
+State for Search Query: Add a state variable to your component to keep track of the user's search input.
+
+Search Input Field: Add a text input field to your UI where users can type their search query.
+
+Filter Function: Implement a function that filters your database array based on the search query.
+
+Display Filtered Results: Use the filtered array to display the search results in the UI.
+
+// Add a new state variable for the search query
+const [searchQuery, setSearchQuery] = useState('');
+
+// Add a function to filter the items based on the search query
+const getFilteredItems = () => {
+  return database.filter(item => item.id.toLowerCase().includes(searchQuery.toLowerCase()));
+};
+
+// Add a text input field for the search query
+<Box display="flex" justifyContent="center">
+  <TextField
+    variant="outlined"
+    placeholder="Search items..."
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+  />
+</Box>
+
+// Use the getFilteredItems function to map over the filtered items instead of the entire database
+<Stack width="800px" height="300px" spacing={2} overflow={'auto'}>
+  {getFilteredItems().map((item) => (
+    // The rest of your item component
+  ))}
+</Stack>
