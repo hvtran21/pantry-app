@@ -1,4 +1,5 @@
 "use client";
+import "@fontsource/roboto/400.css";
 import { Box, Typography, Button, Modal, TextField } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import {
@@ -14,21 +15,6 @@ import { useEffect, useState } from "react";
 import { db } from "@/firebase";
 
 export default function Home() {
-  // const [pantry, setPantry] = useState([])
-  // useEffect(() => {
-  // const updatePantry = async () => {
-  //   const snapshot = query(collection(db, 'pantry'))
-  //   const docs = await getDocs(snapshot)
-  //   const pantryList = []
-  //   docs.forEach((doc) => {
-  //     pantryList.push(doc.id)
-  //   })
-  //   console.log(pantryList)
-  //   setPantry(pantryList)
-  // }
-  // updatePantry()
-  // }, [])
-
   const [database, setDatabase] = useState([]);
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState("");
@@ -94,6 +80,7 @@ export default function Home() {
       justifyContent={"center"}
       flexDirection={"column"}
       alignItems={"center"}
+      bgcolor={"#C4A484"}
     >
       <Modal open={open} onClose={handleClose}>
         <Box
@@ -102,7 +89,6 @@ export default function Home() {
           left="50%"
           width={400}
           bgcolor="white"
-          border="2px solid #000"
           boxShadow={24}
           p={4}
           display="flex"
@@ -137,78 +123,121 @@ export default function Home() {
         </Box>
       </Modal>
 
-      <Button
-        variant="contained"
-        onClick={() => {
-          handleOpen();
-        }}
-      >
-        Add New Item
-      </Button>
-
       {/* this is a wrapper to give the whole box a border */}
-      <Box border={"1px solid #333"}>
-        {/* header box */}
-        <Box
-          width="800px"
-          height="100px"
-          bgcolor={"#ADD8E6"}
-          display={"flex"}
-          justifyContent={"center"}
-          flexDirection={"column"}
-          alignItems={"center"}
+      {/* header box */}
+      <Box
+        width="100vw"
+        height="100"
+        bgcolor={"#C4A484"}
+        display={"flex"}
+        justifyContent={"center"}
+        flexDirection={"column"}
+        alignItems={"center"}
+      >
+        <Typography
+          variant={"h1"}
+          color={"#333"}
+          textAlign={"center"}
+          fontFamily={"Roboto"}
         >
-          <Typography variant={"h3"} color={"#333"} textAlign={"center"}>
-            Pantry Items
-          </Typography>
-        </Box>
+          Pantry List
+        </Typography>
+      </Box>
 
-        {/* stack that holds the items */}
-        <Stack width="800px" height="300px" spacing={2} overflow={"auto"}>
-          {database.map((item) => (
-            // configuration for the individual box sizes
-            <Box
-              key={item.id}
-              width="100%"
-              height="400%"
-              display={"flex"}
-              justifyContent={"center"}
-              alignItems={"center"}
-              bgcolor={"#f0f0f0"}
+      {/* stack that holds the items */}
+      <Stack width="75vw" height="100vh" spacing={1} overflow="auto">
+        {/* Header information for quantity and add/remove */}
+        <Stack direction="row" spacing={2} bgcolor="#C4A484" padding={2}>
+          <Box
+            width="100%"
+            display="flex"
+            justifyContent="flex-start"
+            alignItems="center"
+          >
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleOpen();
+              }}
             >
-              <Typography variant={"h3"} color={"#333"} textAlign={"center"}>
-                {item.id.charAt(0).toUpperCase() + item.id.slice(1)}
-              </Typography>
+              Add New Item
+            </Button>
+          </Box>
 
-              <Typography variant={"h3"} color={"#333"} textAlign={"center"}>
+          <Box
+            width={100} // Fixed width to align with the quantity box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Typography variant="h6" color="#333" fontFamily="Roboto">
+              Quantity
+            </Typography>
+          </Box>
+
+          <Box
+            width="auto" // Adjust to fit content
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Typography variant="h6" color="#333" fontFamily="Roboto">
+              Add/Remove
+            </Typography>
+          </Box>
+        </Stack>
+
+        {/* Display the actual items from the database here */}
+        {database.map((item) => (
+          <Box
+            key={item.id}
+            width="100%"
+            display="flex"
+            justifyContent="flex-start"
+            alignItems="center"
+            bgcolor="#C4A484"
+            padding={2} // Add padding around the content
+          >
+            <Typography
+              variant="h6" // Use h6 for better fitting
+              color="#333"
+              fontFamily="Roboto"
+              flexBasis={0} // Allow to shrink and grow
+              flexGrow={1} // Allows the text to take up available space
+              paddingLeft={2} // Adjust padding as needed
+            >
+              {item.id.charAt(0).toUpperCase() + item.id.slice(1)}
+            </Typography>
+
+            <Box
+              width={100} // Fixed width for the quantity container
+              textAlign="center"
+            >
+              <Typography variant="h6" color="#333" fontFamily="Roboto">
                 {item.quantity}
               </Typography>
-
-              <Stack direction="row" spacing={1}>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => {
-                    addItem(item.id);
-                  }}
-                >
-                  add
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => {
-                    removeItem(item.id);
-                  }}
-                >
-                  del
-                </Button>
-              </Stack>
             </Box>
-          ))}
-        </Stack>
-      </Box>
+
+            <Stack direction="row" spacing={1}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => addItem(item.id)}
+              >
+                Add
+              </Button>
+
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => removeItem(item.id)}
+              >
+                Del
+              </Button>
+            </Stack>
+          </Box>
+        ))}
+      </Stack>
     </Box>
   );
 }
