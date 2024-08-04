@@ -160,7 +160,7 @@ export default function Home() {
           variant={"h1"}
           color={"#333"}
           textAlign={"center"}
-          fontFamily={"Roboto"}
+          fontFamily={"sans-serif"}
         >
           Pantry List
         </Typography>
@@ -203,7 +203,7 @@ export default function Home() {
             justifyContent="center"
             alignItems="center"
           >
-            <Typography variant="h6" color="#333" fontFamily="Roboto">
+            <Typography variant="h6" color="#333" fontFamily="sans-serif">
               Quantity
             </Typography>
           </Box>
@@ -214,7 +214,7 @@ export default function Home() {
             justifyContent="center"
             alignItems="center"
           >
-            <Typography variant="h6" color="#333" fontFamily="Roboto">
+            <Typography variant="h6" color="#333" fontFamily="sans-serif">
               Add/Remove
             </Typography>
           </Box>
@@ -234,7 +234,7 @@ export default function Home() {
             <Typography
               variant="h5" // Use h5 for better fitting
               color="#333"
-              fontFamily="Roboto"
+              fontFamily="sans-serif"
               flexBasis={0} // Allow to shrink and grow
               flexGrow={1} // Allows the text to take up available space
               paddingLeft={2} // Adjust padding as needed
@@ -246,7 +246,7 @@ export default function Home() {
               width={100} // Fixed width for the quantity container
               textAlign="center"
             >
-              <Typography variant="h5" color="#333" fontFamily="Roboto">
+              <Typography variant="h5" color="#333" fontFamily="sans-serif">
                 {item.quantity}
               </Typography>
             </Box>
