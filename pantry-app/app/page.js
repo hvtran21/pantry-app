@@ -1,5 +1,4 @@
 "use client";
-import "@fontsource/roboto/400.css";
 import { Box, Typography, Button, Modal, TextField } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import {
@@ -16,8 +15,25 @@ import { db } from "@/firebase";
 
 export default function Home() {
   const [database, setDatabase] = useState([]);
+  const [Filtered_database, set_Filtered_Database] = useState([]);
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (search_value) => {
+    setSearchQuery(search_value.target.value);
+    filter_database(searchQuery);
+  };
+
+  const filter_database = () => {
+    if (searchQuery === "") {
+      return database;
+    } else {
+      return database.filter((item) =>
+        item.id.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+  };
 
   const update_database = async () => {
     try {
@@ -27,6 +43,7 @@ export default function Home() {
         quantity: doc.data().quantity || 0, // Default to 0 if quantity is not set
       }));
       setDatabase(database_list);
+      set_Filtered_Database(filter_database(""));
     } catch (error) {
       console.error("Error fetching documents: ", error);
     }
@@ -35,6 +52,11 @@ export default function Home() {
   useEffect(() => {
     update_database();
   }, []);
+
+  // Filter data whenever `searchQuery` or `database` changes
+  useEffect(() => {
+    set_Filtered_Database(filter_database());
+  }, [searchQuery, database]);
 
   const removeItem = async (itemId) => {
     const docRef = doc(db, "database", itemId);
@@ -126,8 +148,8 @@ export default function Home() {
       {/* this is a wrapper to give the whole box a border */}
       {/* header box */}
       <Box
-        width="100vw"
-        height="100"
+        width="100%"
+        height="auto"
         bgcolor={"#C4A484"}
         display={"flex"}
         justifyContent={"center"}
@@ -142,6 +164,17 @@ export default function Home() {
         >
           Pantry List
         </Typography>
+      </Box>
+
+      {/* stack that is a search field */}
+      <Box padding={5}>
+        <TextField
+          fullWidth
+          label="Search"
+          id="fullWidth"
+          value={searchQuery}
+          onChange={handleSearch}
+        />
       </Box>
 
       {/* stack that holds the items */}
@@ -188,7 +221,7 @@ export default function Home() {
         </Stack>
 
         {/* Display the actual items from the database here */}
-        {database.map((item) => (
+        {Filtered_database.map((item) => (
           <Box
             key={item.id}
             width="100%"
@@ -199,7 +232,7 @@ export default function Home() {
             padding={2} // Add padding around the content
           >
             <Typography
-              variant="h6" // Use h6 for better fitting
+              variant="h5" // Use h5 for better fitting
               color="#333"
               fontFamily="Roboto"
               flexBasis={0} // Allow to shrink and grow
@@ -213,7 +246,7 @@ export default function Home() {
               width={100} // Fixed width for the quantity container
               textAlign="center"
             >
-              <Typography variant="h6" color="#333" fontFamily="Roboto">
+              <Typography variant="h5" color="#333" fontFamily="Roboto">
                 {item.quantity}
               </Typography>
             </Box>
